@@ -2,115 +2,197 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>32:9 Google News Board</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>32:9 기업 웰컴 보드 - 뉴스 & 날씨</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@700;900&display=swap');
-        body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; background-color: #000c24; color: white; font-family: 'Noto Sans KR', sans-serif; overflow: hidden; }
+        :root {
+            --bg-deep: #020817;
+            --bg-panel: rgba(15, 23, 42, 0.8);
+            --accent-blue: #3b82f6;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border-color: #1e293b;
+        }
+
+        * { box-sizing: border-box; }
+        body, html {
+            margin: 0; padding: 0;
+            width: 100vw; height: 100vh;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Noto Sans KR', sans-serif;
+            overflow: hidden;
+        }
+
         .container { display: flex; flex-direction: column; width: 100%; height: 100%; }
-        .header { height: 15%; display: flex; justify-content: space-between; align-items: center; padding: 0 4%; border-bottom: 2px solid #1a3a6d; }
-        .welcome-text { font-size: 2.5vw; font-weight: 900; }
-        .clock { font-size: 2vw; color: #cbd5e1; }
-        .main-content { height: 65%; display: flex; align-items: center; padding: 0 6%; }
-        .news-box { display: flex; align-items: center; gap: 3vw; animation: fadeIn 0.8s ease-out; }
-        .category-tag { background-color: #1a73e8; padding: 10px 30px; border-radius: 12px; font-size: 2vw; font-weight: 700; min-width: 10vw; text-align: center; }
-        .news-title { font-size: 3.5vw; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65vw; }
-        .footer-weather { height: 20%; background-color: #00153d; display: flex; align-items: center; padding: 0 5%; gap: 4vw; border-top: 1px solid #334155; }
-        .weather-info { display: flex; align-items: center; gap: 2vw; font-size: 2vw; }
-        .temp { font-size: 2.5vw; font-weight: 700; color: #fbbf24; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* 헤더 설정 */
+        .header {
+            height: 18%; display: flex; justify-content: space-between; align-items: center;
+            padding: 0 4%; border-bottom: 2px solid var(--border-color);
+        }
+        .header-left .tag-line { border-left: 4px solid var(--accent-blue); padding-left: 15px; }
+        .header-left .tag-title { font-size: 1.8vw; font-weight: 700; display: block; }
+        .header-left .tag-sub { font-size: 1.1vw; color: var(--text-sub); }
+
+        .header-center { text-align: center; position: absolute; left: 50%; transform: translateX(-50%); }
+        .header-center h1 { font-size: 4.5vw; font-weight: 900; margin: 0; letter-spacing: 2px; }
+        .header-center p { font-size: 1.3vw; color: var(--text-sub); margin: 0; }
+
+        .header-right { text-align: right; }
+        .header-right .date { font-size: 1.3vw; color: var(--text-sub); }
+        .header-right .time { font-size: 3.5vw; font-weight: 700; line-height: 1; }
+
+        /* 뉴스 보드 세로 나열 */
+        .news-board { flex-grow: 1; display: flex; flex-direction: column; padding: 1.5% 4%; gap: 1.2vh; }
+        .news-row {
+            display: grid; grid-template-columns: 8vw 2px 1fr 10vw; align-items: center;
+            background-color: var(--bg-panel); border-radius: 4px; height: 16%;
+            border: 1px solid var(--border-color); padding: 0 20px;
+        }
+        .cat-box { font-size: 1.5vw; font-weight: 700; text-align: center; }
+        .divider { background-color: var(--border-color); height: 50%; width: 2px; margin: 0 20px; }
+
+        .cat-pol { color: #60a5fa; } /* 정치 */
+        .cat-eco { color: #34d399; } /* 경제 */
+        .cat-soc { color: #fbbf24; } /* 사회 */
+        .cat-int { color: #a78bfa; } /* 국제 */
+        .cat-sci { color: #22d3ee; } /* 과학 */
+
+        .news-title-cell { font-size: 2.2vw; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 20px; }
+        .news-time-cell { font-size: 1.4vw; color: var(--text-sub); text-align: right; }
+
+        /* 하단 날씨 바 */
+        .footer-bar {
+            height: 18%; background-color: rgba(2, 6, 23, 0.9); display: flex;
+            align-items: center; padding: 0 4%; gap: 40px; border-top: 1px solid var(--border-color);
+        }
+        .weather-label { font-size: 1.6vw; font-weight: 700; white-space: nowrap; }
+        .weather-main { display: flex; align-items: center; gap: 15px; }
+        .weather-main i { font-size: 3.5vw; color: #fbbf24; }
+        .weather-temp { font-size: 3.2vw; font-weight: 700; color: #fbbf24; }
+        .weather-details { display: flex; gap: 35px; font-size: 1.4vw; color: var(--text-sub); flex-grow: 1; }
+        .weather-details span { display: flex; align-items: center; gap: 8px; }
+        .weather-details i { color: #60a5fa; font-size: 1.4vw; }
+        .dust-good { color: #4ade80; font-weight: 700; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate { animation: fadeIn 0.5s ease-out forwards; }
     </style>
 </head>
 <body>
+
 <div class="container">
-    <div class="header">
-        <div class="welcome-text">WELCOME <span style="font-size: 1.2vw; font-weight: 400; margin-left: 1vw;">구글 실시간 뉴스 브리핑</span></div>
-        <div id="clock" class="clock">로딩 중...</div>
-    </div>
-    <div class="main-content">
-        <div id="news-display" class="news-box">
-            <div id="category" class="category-tag">뉴스</div>
-            <div id="title" class="news-title">실시간 뉴스를 초고속으로 연결 중입니다...</div>
+    <header class="header">
+        <div class="header-left">
+            <div class="tag-line">
+                <span class="tag-title">간추린 뉴스</span>
+                <span class="tag-sub">오늘의 뉴스 브리핑</span>
+            </div>
         </div>
-    </div>
-    <div class="footer-weather">
-        <div style="font-size: 1.5vw; color: #94a3b8; font-weight: 700;">오늘의 날씨</div>
-        <div class="weather-info">
-            <span id="temp" class="temp">23°C</span>
-            <span id="humidity">습도 45%</span>
-            <span id="condition">맑음</span>
+        <div class="header-center">
+            <h1>WELCOME</h1>
+            <p>우리 회사를 방문해 주셔서 감사합니다</p>
         </div>
-    </div>
+        <div class="header-right">
+            <div id="display-date" class="date">----.--.-- (-)</div>
+            <div id="display-time" class="time">00:00 AM</div>
+        </div>
+    </header>
+
+    <main class="news-board">
+        <div class="news-row" id="row-politics">
+            <div class="cat-box cat-pol">정치</div><div class="divider"></div>
+            <div class="news-title-cell title">뉴스 연결 중...</div><div class="news-time-cell time">--:--</div>
+        </div>
+        <div class="news-row" id="row-economy">
+            <div class="cat-box cat-eco">경제</div><div class="divider"></div>
+            <div class="news-title-cell title">뉴스 연결 중...</div><div class="news-time-cell time">--:--</div>
+        </div>
+        <div class="news-row" id="row-society">
+            <div class="cat-box cat-soc">사회</div><div class="divider"></div>
+            <div class="news-title-cell title">뉴스 연결 중...</div><div class="news-time-cell time">--:--</div>
+        </div>
+        <div class="news-row" id="row-international">
+            <div class="cat-box cat-int">국제</div><div class="divider"></div>
+            <div class="news-title-cell title">뉴스 연결 중...</div><div class="news-time-cell time">--:--</div>
+        </div>
+        <div class="news-row" id="row-science">
+            <div class="cat-box cat-sci">IT/과학</div><div class="divider"></div>
+            <div class="news-title-cell title">뉴스 연결 중...</div><div class="news-time-cell time">--:--</div>
+        </div>
+    </main>
+
+    <footer class="footer-bar">
+        <div class="weather-label">오늘의 날씨</div>
+        <div class="weather-main"><i id="w-icon" class="fa-solid fa-sun"></i><div id="w-temp" class="weather-temp">--°C</div></div>
+        <div class="weather-details">
+            <span id="w-location">서울특별시</span>
+            <span><i class="fa-solid fa-droplet"></i> 습도 <span id="w-humi">--</span>%</span>
+            <span><i class="fa-solid fa-wind"></i> 풍속 <span id="w-wind">--</span>m/s</span>
+            <span><i class="fa-solid fa-leaf"></i> 미세먼지 <span id="w-dust" class="dust-good">좋음 (12)</span></span>
+        </div>
+    </footer>
 </div>
 
 <script>
-    // 구글 뉴스 RSS 카테고리별 주소 (대한민국 지역 설정)
-    const googleNewsFeeds = {
-        "정치": "https://news.google.com/rss/headlines/section/topic/POLITICS?hl=ko&gl=KR&ceid=KR:ko",
-        "경제": "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=ko&gl=KR&ceid=KR:ko",
-        "사회": "https://news.google.com/rss/headlines/section/topic/SOCIETY?hl=ko&gl=KR&ceid=KR:ko",
-        "국제": "https://news.google.com/rss/headlines/section/topic/WORLD?hl=ko&gl=KR&ceid=KR:ko",
-        "IT/과학": "https://news.google.com/rss/headlines/section/topic/SCITECH?hl=ko&gl=KR&ceid=KR:ko"
+    const feeds = {
+        politics: "https://news.google.com/rss/headlines/section/topic/POLITICS?hl=ko&gl=KR&ceid=KR:ko",
+        economy: "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=ko&gl=KR&ceid=KR:ko",
+        society: "https://news.google.com/rss/headlines/section/topic/SOCIETY?hl=ko&gl=KR&ceid=KR:ko",
+        international: "https://news.google.com/rss/headlines/section/topic/WORLD?hl=ko&gl=KR&ceid=KR:ko",
+        science: "https://news.google.com/rss/headlines/section/topic/SCITECH?hl=ko&gl=KR&ceid=KR:ko"
     };
+    const rowMapping = { politics: "row-politics", economy: "row-economy", society: "row-society", international: "row-international", science: "row-science" };
 
-    let allNews = [{ cat: "로딩", title: "구글 뉴스에서 최신 정보를 가져오고 있습니다." }];
-    let displayIndex = 0;
-
-    async function fetchGoogleNews() {
-        let combined = [];
-        // rss2json 서비스의 다른 서버 경로를 사용하여 우회 (더 빠름)
-        const proxyBase = "https://api.rss2json.com/v1/api.json?rss_url=";
-
-        for (const [cat, rssUrl] of Object.entries(googleNewsFeeds)) {
+    async function fetchNews() {
+        const proxy = "https://api.rss2json.com/v1/api.json?rss_url=";
+        for (const [key, url] of Object.entries(feeds)) {
             try {
-                const response = await fetch(`${proxyBase}${encodeURIComponent(rssUrl)}`);
+                const response = await fetch(proxy + encodeURIComponent(url));
                 const data = await response.json();
-                
-                if (data.status === 'ok') {
-                    const top3 = data.items.slice(0, 3).map(item => ({
-                        cat: cat,
-                        title: item.title.split(' - ')[0] // 구글 뉴스는 제목 뒤에 언론사명이 붙으므로 깔끔하게 잘라냄
-                    }));
-                    combined = combined.concat(top3);
+                if (data.status === 'ok' && data.items.length > 0) {
+                    const latest = data.items[0];
+                    const row = document.getElementById(rowMapping[key]);
+                    const titleEl = row.querySelector('.title');
+                    titleEl.innerText = latest.title.split(' - ')[0];
+                    const date = new Date(latest.pubDate);
+                    row.querySelector('.time').innerText = date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
                 }
-            } catch (e) { console.error(cat + " 뉴스 실패"); }
-        }
-
-        if (combined.length > 0) {
-            allNews = combined;
-            rotateNews(); // 뉴스 로드 즉시 화면 교체
+            } catch (e) { console.error(key + " 실패"); }
         }
     }
 
-    function rotateNews() {
-        if (allNews.length === 0) return;
-        const displayEl = document.getElementById('news-display');
-        displayEl.style.animation = 'none';
-        displayEl.offsetHeight; 
-        displayEl.style.animation = 'fadeIn 0.8s ease-out';
-        
-        const item = allNews[displayIndex];
-        document.getElementById('category').innerText = item.cat;
-        document.getElementById('title').innerText = item.title;
-        displayIndex = (displayIndex + 1) % allNews.length;
+    async function updateWeather() {
+        try {
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current_weather=true&relative_humidity_2m=true');
+            const data = await res.json();
+            const curr = data.current_weather;
+            document.getElementById('w-temp').innerText = `${Math.round(curr.temperature)}°C`;
+            document.getElementById('w-wind').innerText = curr.windspeed;
+            document.getElementById('w-humi').innerText = data.current_weather.relative_humidity || 45;
+            const code = curr.weathercode;
+            let icon = "fa-sun";
+            if (code >= 1 && code <= 3) icon = "fa-cloud-sun";
+            else if (code >= 45) icon = "fa-smog";
+            else if (code >= 51) icon = "fa-cloud-showers-heavy";
+            document.getElementById('w-icon').className = `fa-solid ${icon}`;
+        } catch (e) { }
     }
 
     function updateClock() {
         const now = new Date();
-        document.getElementById('clock').innerText = now.toLocaleString('ko-KR', { 
-            year:'numeric', month:'2-digit', day:'2-digit', weekday:'short', 
-            hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true 
-        });
+        document.getElementById('display-date').innerText = now.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' });
+        document.getElementById('display-time').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
     }
 
-    // 초기 실행
-    updateClock();
-    setInterval(updateClock, 1000);
-    
-    // 즉시 뉴스 수집 시작
-    fetchGoogleNews();
-    
-    setInterval(rotateNews, 60000); // 1분마다 뉴스 교체
-    setInterval(fetchGoogleNews, 600000); // 10분마다 데이터 갱신
+    updateClock(); setInterval(updateClock, 1000);
+    fetchNews(); setInterval(fetchNews, 600000);
+    updateWeather(); setInterval(updateWeather, 3600000);
 </script>
 </body>
 </html>
