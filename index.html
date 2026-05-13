@@ -30,7 +30,7 @@
 
         .container { display: flex; flex-direction: column; width: 100%; height: 100%; }
 
-        /* 헤더 */
+        /* 헤더 영역 */
         .header {
             height: 18%; display: flex; justify-content: space-between; align-items: center;
             padding: 0 4%; border-bottom: 2px solid var(--border-color);
@@ -60,10 +60,14 @@
         .cat-box { font-size: 1.8vw; font-weight: 800; text-align: center; }
         .divider { background-color: var(--border-color); height: 50%; width: 2px; margin: 0 30px; }
 
-        .cat-pol { color: #60a5fa; } .cat-eco { color: #34d399; } 
-        .cat-cul { color: #f472b6; } .cat-int { color: #a78bfa; } .cat-sci { color: #22d3ee; }
+        /* 카테고리 색상 설정 */
+        .cat-pol { color: #60a5fa; } /* 정치 */
+        .cat-eco { color: #34d399; } /* 경제 */
+        .cat-soc { color: #fbbf24; } /* 사회 */
+        .cat-int { color: #a78bfa; } /* 국제 */
+        .cat-sci { color: #22d3ee; } /* IT/과학 */
 
-        /* 제목 영역 */
+        /* 제목 영역: 텍스트 폭에 따른 자동 크기 조절 */
         .news-title-cell { 
             height: 100%; display: flex; align-items: center; overflow: hidden; width: 100%;
             position: relative;
@@ -85,6 +89,7 @@
         .weather-temp { font-size: 3.2vw; font-weight: 700; color: #fbbf24; }
         .weather-details { display: flex; gap: 35px; font-size: 1.4vw; color: var(--text-sub); flex-grow: 1; }
         
+        /* 갱신 애니메이션 */
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
     </style>
@@ -105,14 +110,14 @@
         </div>
         <div class="header-right">
             <div id="display-date" class="date">----.--.-- (-)</div>
-            <div id="display-time" class="time">00:00 AM</div>
+            <div id="display-time" class="time">00:00:00 AM</div>
         </div>
     </header>
 
     <main class="news-board">
         <div class="news-row" id="row-politics"><div class="cat-box cat-pol">정치</div><div class="divider"></div><div class="news-title-cell"><div class="title-text">데이터 로딩 중...</div></div></div>
         <div class="news-row" id="row-economy"><div class="cat-box cat-eco">경제</div><div class="divider"></div><div class="news-title-cell"><div class="title-text">데이터 로딩 중...</div></div></div>
-        <div class="news-row" id="row-culture"><div class="cat-box cat-cul">문화</div><div class="divider"></div><div class="news-title-cell"><div class="title-text">데이터 로딩 중...</div></div></div>
+        <div class="news-row" id="row-society"><div class="cat-box cat-soc">사회</div><div class="divider"></div><div class="news-title-cell"><div class="title-text">데이터 로딩 중...</div></div></div>
         <div class="news-row" id="row-international"><div class="cat-box cat-int">국제</div><div class="divider"></div><div class="news-title-cell"><div class="title-text">데이터 로딩 중...</div></div></div>
         <div class="news-row" id="row-science"><div class="cat-box cat-sci">IT/과학</div><div class="divider"></div><div class="news-title-cell"><div class="title-text">데이터 로딩 중...</div></div></div>
     </main>
@@ -133,37 +138,29 @@
     const feeds = {
         politics: "https://news.google.com/rss/headlines/section/topic/POLITICS?hl=ko&gl=KR&ceid=KR:ko",
         economy: "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=ko&gl=KR&ceid=KR:ko",
-        culture: "https://news.google.com/rss/headlines/section/topic/ENTERTAINMENT?hl=ko&gl=KR&ceid=KR:ko",
+        society: "https://news.google.com/rss/headlines/section/topic/SOCIETY?hl=ko&gl=KR&ceid=KR:ko", // 사회 복구
         international: "https://news.google.com/rss/headlines/section/topic/WORLD?hl=ko&gl=KR&ceid=KR:ko",
         science: "https://news.google.com/rss/headlines/section/topic/SCITECH?hl=ko&gl=KR&ceid=KR:ko"
     };
 
-    let newsData = { politics: [], economy: [], culture: [], international: [], science: [] };
+    let newsData = { politics: [], economy: [], society: [], international: [], science: [] };
     let currentRank = 0;
 
-    // 개선된 폰트 조절 로직: 텍스트 폭을 박스 폭에 1:1로 맞춤
+    // 폰트 조절 로직: 박스 너비에 맞춰 제목 크기를 실시간 최적화
     function adjustFontSize() {
         const cells = document.querySelectorAll('.news-title-cell');
         cells.forEach(cell => {
             const text = cell.querySelector('.title-text');
-            const containerWidth = cell.offsetWidth - 20; // 박스 실제 가용 폭
+            const containerWidth = cell.offsetWidth - 20; 
             
-            // 폰트 크기를 초기화하고 실제 텍스트 길이를 측정
             text.style.fontSize = "2.3vw"; 
             const textWidth = text.scrollWidth;
 
             if (textWidth > containerWidth) {
-                // (박스 폭 / 텍스트 폭) 비율을 계산해서 폰트 크기에 곱함
                 let scaleFactor = containerWidth / textWidth;
                 let newSize = 2.3 * scaleFactor;
-                
-                // 너무 작아지지 않도록 하한선(1.1vw) 설정
                 if (newSize < 1.1) newSize = 1.1;
-                
                 text.style.fontSize = newSize + "vw";
-            } else {
-                // 공간이 충분하면 기본 크기인 2.3vw 유지
-                text.style.fontSize = "2.3vw";
             }
         });
     }
@@ -193,13 +190,13 @@
             }
         });
 
-        // 텍스트가 바뀐 직후 폰트 조절 실행
-        setTimeout(adjustFontSize, 50);
+        setTimeout(adjustFontSize, 100);
         currentRank = (currentRank + 1) % 3;
     }
 
+    // 초기 실행 및 타이머 (15초 간격)
     fetchAllNews();
-    setInterval(displayNews, 15000); // 15초 주기로 순환
+    setInterval(displayNews, 15000); 
     setInterval(fetchAllNews, 600000);
 
     function updateClock() {
@@ -207,6 +204,7 @@
         document.getElementById('display-date').innerText = now.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' });
         document.getElementById('display-time').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
     }
+
     async function updateWeather() {
         try {
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=37.4292&longitude=126.9899&current_weather=true&relative_humidity_2m=true');
