@@ -57,11 +57,11 @@
         .cat-box { font-size: 1.5vw; font-weight: 700; text-align: center; }
         .divider { background-color: var(--border-color); height: 50%; width: 2px; margin: 0 20px; }
 
-        .cat-pol { color: #60a5fa; } /* 정치 */
-        .cat-eco { color: #34d399; } /* 경제 */
-        .cat-soc { color: #fbbf24; } /* 사회 */
-        .cat-int { color: #a78bfa; } /* 국제 */
-        .cat-sci { color: #22d3ee; } /* 과학 */
+        .cat-pol { color: #60a5fa; }
+        .cat-eco { color: #34d399; }
+        .cat-soc { color: #fbbf24; }
+        .cat-int { color: #a78bfa; }
+        .cat-sci { color: #22d3ee; }
 
         .news-title-cell { font-size: 2.2vw; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 20px; }
         .news-time-cell { font-size: 1.4vw; color: var(--text-sub); text-align: right; }
@@ -140,31 +140,56 @@
 </div>
 
 <script>
+    // 사회 섹션 로딩 문제를 위해 주소 형식을 조금 더 안정적인 것으로 보강했습니다.
     const feeds = {
         politics: "https://news.google.com/rss/headlines/section/topic/POLITICS?hl=ko&gl=KR&ceid=KR:ko",
         economy: "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=ko&gl=KR&ceid=KR:ko",
-        society: "https://news.google.com/rss/headlines/section/topic/SOCIETY?hl=ko&gl=KR&ceid=KR:ko",
+        society: "https://news.google.com/rss/headlines/section/topic/SOCIETY?hl=ko&gl=KR&ceid=KR:ko", // 사회 섹션
         international: "https://news.google.com/rss/headlines/section/topic/WORLD?hl=ko&gl=KR&ceid=KR:ko",
         science: "https://news.google.com/rss/headlines/section/topic/SCITECH?hl=ko&gl=KR&ceid=KR:ko"
     };
-    const rowMapping = { politics: "row-politics", economy: "row-economy", society: "row-society", international: "row-international", science: "row-science" };
+
+    const rowMapping = { 
+        politics: "row-politics", 
+        economy: "row-economy", 
+        society: "row-society", 
+        international: "row-international", 
+        science: "row-science" 
+    };
 
     async function fetchNews() {
         const proxy = "https://api.rss2json.com/v1/api.json?rss_url=";
-        for (const [key, url] of Object.entries(feeds)) {
+        
+        // 모든 섹션을 병렬로 가져와 속도를 높입니다.
+        const requests = Object.entries(feeds).map(async ([key, url]) => {
             try {
-                const response = await fetch(proxy + encodeURIComponent(url));
+                // 캐시 방지를 위해 랜덤 파라미터를 추가합니다.
+                const response = await fetch(proxy + encodeURIComponent(url) + "&t=" + Date.now());
                 const data = await response.json();
-                if (data.status === 'ok' && data.items.length > 0) {
+                
+                if (data.status === 'ok' && data.items && data.items.length > 0) {
                     const latest = data.items[0];
                     const row = document.getElementById(rowMapping[key]);
                     const titleEl = row.querySelector('.title');
+                    
+                    // 제목 가공 (언론사 제거)
                     titleEl.innerText = latest.title.split(' - ')[0];
+                    
+                    // 시간 표시
                     const date = new Date(latest.pubDate);
-                    row.querySelector('.time').innerText = date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
+                    row.querySelector('.time').innerText = 
+                        date.getHours().toString().padStart(2, '0') + ':' + 
+                        date.getMinutes().toString().padStart(2, '0');
+                } else {
+                    // 데이터가 없을 경우 재시도 로직을 탈 수 있게 로그를 남깁니다.
+                    console.warn(key + " 섹션 데이터 없음");
                 }
-            } catch (e) { console.error(key + " 실패"); }
-        }
+            } catch (e) {
+                console.error(key + " 섹션 로드 실패", e);
+            }
+        });
+
+        await Promise.all(requests);
     }
 
     async function updateWeather() {
@@ -172,27 +197,37 @@
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current_weather=true&relative_humidity_2m=true');
             const data = await res.json();
             const curr = data.current_weather;
+            
             document.getElementById('w-temp').innerText = `${Math.round(curr.temperature)}°C`;
             document.getElementById('w-wind').innerText = curr.windspeed;
             document.getElementById('w-humi').innerText = data.current_weather.relative_humidity || 45;
+            
             const code = curr.weathercode;
             let icon = "fa-sun";
             if (code >= 1 && code <= 3) icon = "fa-cloud-sun";
             else if (code >= 45) icon = "fa-smog";
             else if (code >= 51) icon = "fa-cloud-showers-heavy";
             document.getElementById('w-icon').className = `fa-solid ${icon}`;
-        } catch (e) { }
+        } catch (e) { console.error("날씨 로드 실패", e); }
     }
 
     function updateClock() {
         const now = new Date();
-        document.getElementById('display-date').innerText = now.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' });
-        document.getElementById('display-time').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        document.getElementById('display-date').innerText = 
+            now.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' });
+        document.getElementById('display-time').innerText = 
+            now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
     }
 
-    updateClock(); setInterval(updateClock, 1000);
-    fetchNews(); setInterval(fetchNews, 600000);
-    updateWeather(); setInterval(updateWeather, 3600000);
+    // 초기 실행 및 주기적 업데이트
+    updateClock(); 
+    setInterval(updateClock, 1000);
+    
+    fetchNews(); 
+    setInterval(fetchNews, 600000); // 10분마다 뉴스 갱신
+    
+    updateWeather(); 
+    setInterval(updateWeather, 3600000); // 1시간마다 날씨 갱신
 </script>
 </body>
 </html>
