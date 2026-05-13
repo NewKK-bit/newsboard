@@ -47,13 +47,13 @@
         .header-right .date { font-size: 1.3vw; color: var(--text-sub); }
         .header-right .time { font-size: 3.5vw; font-weight: 700; line-height: 1; }
 
-        /* 뉴스 보드 */
-        .news-board { flex-grow: 1; display: flex; flex-direction: column; padding: 1.5% 4%; gap: 1.2vh; }
+        /* 뉴스 보드 (6개 행으로 조정) */
+        .news-board { flex-grow: 1; display: flex; flex-direction: column; padding: 1.2% 4%; gap: 1vh; }
         .news-row {
             display: grid; 
             grid-template-columns: 10vw 2px 1fr; 
             align-items: center;
-            background-color: var(--bg-panel); border-radius: 4px; height: 16%;
+            background-color: var(--bg-panel); border-radius: 4px; height: 13.5%; /* 높이 소폭 축소 */
             border: 1px solid var(--border-color); padding: 0 30px;
         }
         
@@ -63,11 +63,11 @@
         /* 카테고리 색상 설정 */
         .cat-pol { color: #60a5fa; } /* 정치 */
         .cat-eco { color: #34d399; } /* 경제 */
-        .cat-spo { color: #f87171; } /* 스포츠 (레드/오렌지톤) */
+        .cat-spo { color: #f87171; } /* 스포츠 */
+        .cat-hea { color: #fbbf24; } /* 건강 (옐로우/골드) */
         .cat-int { color: #a78bfa; } /* 국제 */
         .cat-sci { color: #22d3ee; } /* IT/과학 */
 
-        /* 제목 영역: 텍스트 폭에 따른 자동 크기 조절 */
         .news-title-cell { 
             height: 100%; display: flex; align-items: center; overflow: hidden; width: 100%;
             position: relative;
@@ -89,7 +89,6 @@
         .weather-temp { font-size: 3.2vw; font-weight: 700; color: #fbbf24; }
         .weather-details { display: flex; gap: 35px; font-size: 1.4vw; color: var(--text-sub); flex-grow: 1; }
         
-        /* 갱신 애니메이션 */
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
     </style>
@@ -118,6 +117,7 @@
         <div class="news-row" id="row-politics"><div class="cat-box cat-pol">정치</div><div class="divider"></div><div class="news-title-cell"><div class="title-text">데이터 로딩 중...</div></div></div>
         <div class="news-row" id="row-economy"><div class="cat-box cat-eco">경제</div><div class="divider"></div><div class="news-title-cell"><div class="title-text">데이터 로딩 중...</div></div></div>
         <div class="news-row" id="row-sports"><div class="cat-box cat-spo">스포츠</div><div class="divider"></div><div class="news-title-cell"><div class="title-text">데이터 로딩 중...</div></div></div>
+        <div class="news-row" id="row-health"><div class="cat-box cat-hea">건강</div><div class="divider"></div><div class="news-title-cell"><div class="title-text">데이터 로딩 중...</div></div></div>
         <div class="news-row" id="row-international"><div class="cat-box cat-int">국제</div><div class="divider"></div><div class="news-title-cell"><div class="title-text">데이터 로딩 중...</div></div></div>
         <div class="news-row" id="row-science"><div class="cat-box cat-sci">IT/과학</div><div class="divider"></div><div class="news-title-cell"><div class="title-text">데이터 로딩 중...</div></div></div>
     </main>
@@ -138,24 +138,22 @@
     const feeds = {
         politics: "https://news.google.com/rss/headlines/section/topic/POLITICS?hl=ko&gl=KR&ceid=KR:ko",
         economy: "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=ko&gl=KR&ceid=KR:ko",
-        sports: "https://news.google.com/rss/headlines/section/topic/SPORTS?hl=ko&gl=KR&ceid=KR:ko", // 스포츠 섹션 적용
+        sports: "https://news.google.com/rss/headlines/section/topic/SPORTS?hl=ko&gl=KR&ceid=KR:ko",
+        health: "https://news.google.com/rss/headlines/section/topic/HEALTH?hl=ko&gl=KR&ceid=KR:ko", // 건강 섹션 추가
         international: "https://news.google.com/rss/headlines/section/topic/WORLD?hl=ko&gl=KR&ceid=KR:ko",
         science: "https://news.google.com/rss/headlines/section/topic/SCITECH?hl=ko&gl=KR&ceid=KR:ko"
     };
 
-    let newsData = { politics: [], economy: [], sports: [], international: [], science: [] };
+    let newsData = { politics: [], economy: [], sports: [], health: [], international: [], science: [] };
     let currentRank = 0;
 
-    // 폰트 조절 로직: 박스 너비에 맞춰 제목 크기를 실시간 최적화
     function adjustFontSize() {
         const cells = document.querySelectorAll('.news-title-cell');
         cells.forEach(cell => {
             const text = cell.querySelector('.title-text');
             const containerWidth = cell.offsetWidth - 20; 
-            
             text.style.fontSize = "2.3vw"; 
             const textWidth = text.scrollWidth;
-
             if (textWidth > containerWidth) {
                 let scaleFactor = containerWidth / textWidth;
                 let newSize = 2.3 * scaleFactor;
@@ -189,12 +187,10 @@
                 textEl.classList.add('fade-in');
             }
         });
-
         setTimeout(adjustFontSize, 100);
         currentRank = (currentRank + 1) % 3;
     }
 
-    // 초기 실행 및 타이머 (15초 간격)
     fetchAllNews();
     setInterval(displayNews, 15000); 
     setInterval(fetchAllNews, 600000);
