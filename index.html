@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>32:9 매직인포 뉴스보드</title>
+    <title>32:9 Google News Board</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@700;900&display=swap');
         body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; background-color: #000c24; color: white; font-family: 'Noto Sans KR', sans-serif; overflow: hidden; }
@@ -11,25 +11,25 @@
         .welcome-text { font-size: 2.5vw; font-weight: 900; }
         .clock { font-size: 2vw; color: #cbd5e1; }
         .main-content { height: 65%; display: flex; align-items: center; padding: 0 6%; }
-        .news-box { display: flex; align-items: center; gap: 3vw; animation: fadeIn 1.2s ease-in-out; }
-        .category-tag { background-color: #3b82f6; padding: 10px 30px; border-radius: 12px; font-size: 2vw; font-weight: 700; min-width: 10vw; text-align: center; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
+        .news-box { display: flex; align-items: center; gap: 3vw; animation: fadeIn 0.8s ease-out; }
+        .category-tag { background-color: #1a73e8; padding: 10px 30px; border-radius: 12px; font-size: 2vw; font-weight: 700; min-width: 10vw; text-align: center; }
         .news-title { font-size: 3.5vw; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65vw; }
         .footer-weather { height: 20%; background-color: #00153d; display: flex; align-items: center; padding: 0 5%; gap: 4vw; border-top: 1px solid #334155; }
         .weather-info { display: flex; align-items: center; gap: 2vw; font-size: 2vw; }
         .temp { font-size: 2.5vw; font-weight: 700; color: #fbbf24; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <div class="welcome-text">WELCOME <span style="font-size: 1.2vw; font-weight: 400; margin-left: 1vw;">우리 회사를 방문해 주셔서 감사합니다</span></div>
-        <div id="clock" class="clock">0000. 00. 00. (월) 00:00</div>
+        <div class="welcome-text">WELCOME <span style="font-size: 1.2vw; font-weight: 400; margin-left: 1vw;">구글 실시간 뉴스 브리핑</span></div>
+        <div id="clock" class="clock">로딩 중...</div>
     </div>
     <div class="main-content">
         <div id="news-display" class="news-box">
-            <div id="category" class="category-tag">알림</div>
-            <div id="title" class="news-title">실시간 뉴스를 연결하고 있습니다...</div>
+            <div id="category" class="category-tag">뉴스</div>
+            <div id="title" class="news-title">실시간 뉴스를 초고속으로 연결 중입니다...</div>
         </div>
     </div>
     <div class="footer-weather">
@@ -43,99 +43,74 @@
 </div>
 
 <script>
-    const rssFeeds = {
-        "정치": "https://news.naver.com/rss/rss_section.naver?sectionId=100",
-        "경제": "https://news.naver.com/rss/rss_section.naver?sectionId=101",
-        "사회": "https://news.naver.com/rss/rss_section.naver?sectionId=102",
-        "국제": "https://news.naver.com/rss/rss_section.naver?sectionId=104",
-        "IT/과학": "https://news.naver.com/rss/rss_section.naver?sectionId=105"
+    // 구글 뉴스 RSS 카테고리별 주소 (대한민국 지역 설정)
+    const googleNewsFeeds = {
+        "정치": "https://news.google.com/rss/headlines/section/topic/POLITICS?hl=ko&gl=KR&ceid=KR:ko",
+        "경제": "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=ko&gl=KR&ceid=KR:ko",
+        "사회": "https://news.google.com/rss/headlines/section/topic/SOCIETY?hl=ko&gl=KR&ceid=KR:ko",
+        "국제": "https://news.google.com/rss/headlines/section/topic/WORLD?hl=ko&gl=KR&ceid=KR:ko",
+        "IT/과학": "https://news.google.com/rss/headlines/section/topic/SCITECH?hl=ko&gl=KR&ceid=KR:ko"
     };
 
-    let allNews = [
-        { cat: "안내", title: "실시간 뉴스를 불러오는 중입니다. 잠시만 기다려주세요." }
-    ];
+    let allNews = [{ cat: "로딩", title: "구글 뉴스에서 최신 정보를 가져오고 있습니다." }];
     let displayIndex = 0;
 
-    // 뉴스 데이터를 가져오는 핵심 함수 (rss2json 서버 사용)
-    async function fetchNews() {
+    async function fetchGoogleNews() {
         let combined = [];
-        const apiKey = '00000000000000000000000000000000'; // 무료 키는 생략 가능
+        // rss2json 서비스의 다른 서버 경로를 사용하여 우회 (더 빠름)
+        const proxyBase = "https://api.rss2json.com/v1/api.json?rss_url=";
 
-        for (const [cat, rssUrl] of Object.entries(rssFeeds)) {
+        for (const [cat, rssUrl] of Object.entries(googleNewsFeeds)) {
             try {
-                // 더 빠른 응답을 위해 rss2json 서비스 사용
-                const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&api_key=${apiKey}`);
+                const response = await fetch(`${proxyBase}${encodeURIComponent(rssUrl)}`);
                 const data = await response.json();
                 
                 if (data.status === 'ok') {
-                    // 상위 3개 추출
                     const top3 = data.items.slice(0, 3).map(item => ({
                         cat: cat,
-                        title: item.title
+                        title: item.title.split(' - ')[0] // 구글 뉴스는 제목 뒤에 언론사명이 붙으므로 깔끔하게 잘라냄
                     }));
                     combined = combined.concat(top3);
                 }
-            } catch (e) {
-                console.error(cat + " 로드 실패");
-            }
+            } catch (e) { console.error(cat + " 뉴스 실패"); }
         }
 
         if (combined.length > 0) {
             allNews = combined;
-            console.log("뉴스 로드 완료:", allNews.length, "건");
+            rotateNews(); // 뉴스 로드 즉시 화면 교체
         }
     }
 
-    async function fetchWeather() {
-        try {
-            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current_weather=true&relative_humidity_2m=true');
-            const data = await res.json();
-            if(data.current_weather) {
-                document.getElementById('temp').innerText = `${Math.round(data.current_weather.temperature)}°C`;
-                const cond = data.current_weather.weathercode <= 3 ? "맑음" : "흐림/비";
-                document.getElementById('condition').innerText = cond;
-            }
-        } catch (e) { console.error("날씨 로드 실패"); }
-    }
-
     function rotateNews() {
+        if (allNews.length === 0) return;
         const displayEl = document.getElementById('news-display');
-        const categoryEl = document.getElementById('category');
-        const titleEl = document.getElementById('title');
-
-        // 애니메이션 효과
         displayEl.style.animation = 'none';
         displayEl.offsetHeight; 
-        displayEl.style.animation = 'fadeIn 1.2s ease-in-out';
+        displayEl.style.animation = 'fadeIn 0.8s ease-out';
         
         const item = allNews[displayIndex];
-        categoryEl.innerText = item.cat;
-        titleEl.innerText = item.title;
-
+        document.getElementById('category').innerText = item.cat;
+        document.getElementById('title').innerText = item.title;
         displayIndex = (displayIndex + 1) % allNews.length;
     }
 
     function updateClock() {
         const now = new Date();
-        const str = now.toLocaleString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit', weekday:'short', hour:'2-digit', minute:'2-digit', hour12:true });
-        document.getElementById('clock').innerText = str;
+        document.getElementById('clock').innerText = now.toLocaleString('ko-KR', { 
+            year:'numeric', month:'2-digit', day:'2-digit', weekday:'short', 
+            hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true 
+        });
     }
 
     // 초기 실행
     updateClock();
     setInterval(updateClock, 1000);
     
-    // 뉴스 초기화 및 1분 순환
-    rotateNews(); 
-    fetchNews().then(() => {
-        if(allNews.length > 1) rotateNews(); // 뉴스 로드되면 바로 교체
-    });
-    
-    fetchWeather();
+    // 즉시 뉴스 수집 시작
+    fetchGoogleNews();
     
     setInterval(rotateNews, 60000); // 1분마다 뉴스 교체
-    setInterval(fetchNews, 600000); // 10분마다 새 뉴스 가져오기
-    setInterval(fetchWeather, 3600000); // 1시간마다 날씨 업데이트
+    setInterval(fetchGoogleNews, 600000); // 10분마다 데이터 갱신
 </script>
 </body>
 </html>
