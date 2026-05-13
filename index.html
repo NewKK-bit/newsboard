@@ -16,8 +16,8 @@
             --text-main: #f8fafc;
             --text-sub: #94a3b8;
             --border-color: #1e293b;
-            /* 하단 바 배경색을 가독성을 위해 약간 더 밝은 네이비로 조정 */
-            --bg-footer: #0a1329; 
+            /* 하단 날씨 영역 배경색을 밝게 조정 */
+            --bg-footer: #111a33; 
         }
 
         * { box-sizing: border-box; }
@@ -32,6 +32,7 @@
 
         .container { display: flex; flex-direction: column; width: 100%; height: 100%; }
 
+        /* 헤더 영역 */
         .header {
             height: 18%; display: flex; justify-content: space-between; align-items: center;
             padding: 0 4%; border-bottom: 2px solid var(--border-color);
@@ -48,7 +49,15 @@
         .header-right .date { font-size: 1.3vw; color: var(--text-sub); }
         .header-right .time { font-size: 3.5vw; font-weight: 700; line-height: 1; }
 
-        .news-board { flex-grow: 1; display: flex; flex-direction: column; padding: 2% 4%; gap: 1.8vh; }
+        /* 뉴스 보드 영역 - 상단 여백 추가로 가운데 정렬 느낌 */
+        .news-board { 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            padding: 2% 4%; 
+            margin-top: 2vh; /* 엔터 한 번 정도의 간격 추가 */
+            gap: 1.8vh; 
+        }
         .news-row {
             display: grid; grid-template-columns: 10vw 2px 1fr; align-items: center;
             background-color: var(--bg-panel); border-radius: 4px; height: 12.5%;
@@ -64,7 +73,7 @@
         .news-title-cell { height: 100%; display: flex; align-items: center; overflow: hidden; width: 100%; position: relative; }
         .title-text { font-size: 2.3vw; font-weight: 500; white-space: nowrap; display: inline-block; transform-origin: left center; }
 
-        /* 하단 날씨 및 로고 바 - 색상 및 여백 조정 */
+        /* 하단 날씨 및 로고 바 */
         .footer-bar {
             height: 18%; background-color: var(--bg-footer); display: flex;
             align-items: center; padding: 0 4%; border-top: 2px solid var(--border-color);
@@ -76,13 +85,12 @@
         .weather-temp { font-size: 3.2vw; font-weight: 700; color: #fbbf24; }
         .weather-details { display: flex; gap: 35px; font-size: 1.4vw; color: #cbd5e1; }
         
-        /* 로고 영역 - 크기 확대 및 선명도 조정 */
+        /* 로고 영역 - 선명도와 크기 유지 */
         .logo-area { display: flex; align-items: center; }
         .logo-area img {
-            height: 9.5vh; /* 크기 확대 (기존 7.5vh -> 9.5vh) */
+            height: 9.5vh; 
             width: auto;
             object-fit: contain;
-            /* 배경이 어두울 때 로고를 더 선명하게 함 */
             filter: brightness(1.2) contrast(1.1); 
         }
 
