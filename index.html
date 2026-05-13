@@ -63,15 +63,16 @@
         .cat-pol { color: #60a5fa; } .cat-eco { color: #34d399; } 
         .cat-cul { color: #f472b6; } .cat-int { color: #a78bfa; } .cat-sci { color: #22d3ee; }
 
-        /* 제목 영역: 공간을 최대한 활용 */
+        /* 제목 영역 */
         .news-title-cell { 
             height: 100%; display: flex; align-items: center; overflow: hidden; width: 100%;
+            position: relative;
         }
         .title-text {
             font-size: 2.3vw; font-weight: 500; 
             white-space: nowrap; 
             display: inline-block;
-            transition: font-size 0.2s ease;
+            transform-origin: left center;
         }
 
         /* 하단 날씨 바 */
@@ -100,7 +101,7 @@
         </div>
         <div class="header-center">
             <h1>WELCOME</h1>
-            <p>광동제약을 방문해 주셔서 감사합니다</p>
+            <p>우리 회사를 방문해 주셔서 감사합니다</p>
         </div>
         <div class="header-right">
             <div id="display-date" class="date">----.--.-- (-)</div>
@@ -140,20 +141,29 @@
     let newsData = { politics: [], economy: [], culture: [], international: [], science: [] };
     let currentRank = 0;
 
-    // 폰트 조절 로직 개선: 옆에 공간이 있으면 절대 줄이지 않음
+    // 개선된 폰트 조절 로직: 텍스트 폭을 박스 폭에 1:1로 맞춤
     function adjustFontSize() {
         const cells = document.querySelectorAll('.news-title-cell');
         cells.forEach(cell => {
             const text = cell.querySelector('.title-text');
-            const availableWidth = cell.clientWidth - 40; // 여백 제외 가용 폭
+            const containerWidth = cell.offsetWidth - 20; // 박스 실제 가용 폭
             
-            text.style.fontSize = "2.3vw"; // 초기화
-            
-            // 실제 글자 폭이 가용 폭을 넘을 때만 줄임
-            let currentSize = 2.3;
-            while (text.scrollWidth > availableWidth && currentSize > 1.2) {
-                currentSize -= 0.05;
-                text.style.fontSize = currentSize + "vw";
+            // 폰트 크기를 초기화하고 실제 텍스트 길이를 측정
+            text.style.fontSize = "2.3vw"; 
+            const textWidth = text.scrollWidth;
+
+            if (textWidth > containerWidth) {
+                // (박스 폭 / 텍스트 폭) 비율을 계산해서 폰트 크기에 곱함
+                let scaleFactor = containerWidth / textWidth;
+                let newSize = 2.3 * scaleFactor;
+                
+                // 너무 작아지지 않도록 하한선(1.1vw) 설정
+                if (newSize < 1.1) newSize = 1.1;
+                
+                text.style.fontSize = newSize + "vw";
+            } else {
+                // 공간이 충분하면 기본 크기인 2.3vw 유지
+                text.style.fontSize = "2.3vw";
             }
         });
     }
@@ -183,14 +193,14 @@
             }
         });
 
-        setTimeout(adjustFontSize, 100);
+        // 텍스트가 바뀐 직후 폰트 조절 실행
+        setTimeout(adjustFontSize, 50);
         currentRank = (currentRank + 1) % 3;
     }
 
-    // 초기 실행 및 타이머 설정 (15초 주기로 변경)
     fetchAllNews();
-    setInterval(displayNews, 15000); // 15초
-    setInterval(fetchAllNews, 600000); // 10분
+    setInterval(displayNews, 15000); // 15초 주기로 순환
+    setInterval(fetchAllNews, 600000);
 
     function updateClock() {
         const now = new Date();
