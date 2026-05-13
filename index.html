@@ -11,32 +11,32 @@
         .welcome-text { font-size: 2.5vw; font-weight: 900; }
         .clock { font-size: 2vw; color: #cbd5e1; }
         .main-content { height: 65%; display: flex; align-items: center; padding: 0 6%; }
-        .news-box { display: flex; align-items: center; gap: 3vw; animation: fadeIn 1s ease-in-out; }
-        .category-tag { background-color: #4facfe; padding: 10px 30px; border-radius: 12px; font-size: 2vw; font-weight: 700; min-width: 10vw; text-align: center; }
+        .news-box { display: flex; align-items: center; gap: 3vw; animation: fadeIn 1.2s ease-in-out; }
+        .category-tag { background-color: #3b82f6; padding: 10px 30px; border-radius: 12px; font-size: 2vw; font-weight: 700; min-width: 10vw; text-align: center; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
         .news-title { font-size: 3.5vw; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65vw; }
         .footer-weather { height: 20%; background-color: #00153d; display: flex; align-items: center; padding: 0 5%; gap: 4vw; border-top: 1px solid #334155; }
         .weather-info { display: flex; align-items: center; gap: 2vw; font-size: 2vw; }
         .temp { font-size: 2.5vw; font-weight: 700; color: #fbbf24; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
         <div class="welcome-text">WELCOME <span style="font-size: 1.2vw; font-weight: 400; margin-left: 1vw;">우리 회사를 방문해 주셔서 감사합니다</span></div>
-        <div id="clock" class="clock">로딩 중...</div>
+        <div id="clock" class="clock">0000. 00. 00. (월) 00:00</div>
     </div>
     <div class="main-content">
         <div id="news-display" class="news-box">
-            <div id="category" class="category-tag">뉴스</div>
-            <div id="title" class="news-title">최신 뉴스를 가져오는 중입니다...</div>
+            <div id="category" class="category-tag">알림</div>
+            <div id="title" class="news-title">실시간 뉴스를 연결하고 있습니다...</div>
         </div>
     </div>
     <div class="footer-weather">
         <div style="font-size: 1.5vw; color: #94a3b8; font-weight: 700;">오늘의 날씨</div>
         <div class="weather-info">
-            <span id="temp" class="temp">--°C</span>
-            <span id="humidity">습도 --%</span>
+            <span id="temp" class="temp">23°C</span>
+            <span id="humidity">습도 45%</span>
             <span id="condition">맑음</span>
         </div>
     </div>
@@ -51,35 +51,38 @@
         "IT/과학": "https://news.naver.com/rss/rss_section.naver?sectionId=105"
     };
 
-    let allNews = [];
+    let allNews = [
+        { cat: "안내", title: "실시간 뉴스를 불러오는 중입니다. 잠시만 기다려주세요." }
+    ];
     let displayIndex = 0;
 
+    // 뉴스 데이터를 가져오는 핵심 함수 (rss2json 서버 사용)
     async function fetchNews() {
         let combined = [];
-        // AllOrigins 프록시를 사용하여 CORS 문제 해결
-        const proxyUrl = "https://api.allorigins.win/get?url=";
+        const apiKey = '00000000000000000000000000000000'; // 무료 키는 생략 가능
 
         for (const [cat, rssUrl] of Object.entries(rssFeeds)) {
             try {
-                const response = await fetch(`${proxyUrl}${encodeURIComponent(rssUrl)}`);
+                // 더 빠른 응답을 위해 rss2json 서비스 사용
+                const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&api_key=${apiKey}`);
                 const data = await response.json();
                 
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(data.contents, "text/xml");
-                const items = xmlDoc.getElementsByTagName("item");
-                
-                for (let i = 0; i < 3; i++) {
-                    if (items[i]) {
-                        const title = items[i].getElementsByTagName("title")[0].textContent;
-                        combined.push({ cat, title });
-                    }
+                if (data.status === 'ok') {
+                    // 상위 3개 추출
+                    const top3 = data.items.slice(0, 3).map(item => ({
+                        cat: cat,
+                        title: item.title
+                    }));
+                    combined = combined.concat(top3);
                 }
-            } catch (e) { console.error(cat + " 로드 실패", e); }
+            } catch (e) {
+                console.error(cat + " 로드 실패");
+            }
         }
 
         if (combined.length > 0) {
             allNews = combined;
-            rotateNews(); // 뉴스 가져오자마자 바로 표시
+            console.log("뉴스 로드 완료:", allNews.length, "건");
         }
     }
 
@@ -87,34 +90,52 @@
         try {
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current_weather=true&relative_humidity_2m=true');
             const data = await res.json();
-            document.getElementById('temp').innerText = `${Math.round(data.current_weather.temperature)}°C`;
-            document.getElementById('humidity').innerText = `습도 ${data.current_humidity_2m || 45}%`;
+            if(data.current_weather) {
+                document.getElementById('temp').innerText = `${Math.round(data.current_weather.temperature)}°C`;
+                const cond = data.current_weather.weathercode <= 3 ? "맑음" : "흐림/비";
+                document.getElementById('condition').innerText = cond;
+            }
         } catch (e) { console.error("날씨 로드 실패"); }
     }
 
     function rotateNews() {
-        if (allNews.length === 0) return;
         const displayEl = document.getElementById('news-display');
-        displayEl.style.animation = 'none'; displayEl.offsetHeight; displayEl.style.animation = 'fadeIn 1s ease-in-out';
+        const categoryEl = document.getElementById('category');
+        const titleEl = document.getElementById('title');
+
+        // 애니메이션 효과
+        displayEl.style.animation = 'none';
+        displayEl.offsetHeight; 
+        displayEl.style.animation = 'fadeIn 1.2s ease-in-out';
         
         const item = allNews[displayIndex];
-        document.getElementById('category').innerText = item.cat;
-        document.getElementById('title').innerText = item.title;
+        categoryEl.innerText = item.cat;
+        titleEl.innerText = item.title;
+
         displayIndex = (displayIndex + 1) % allNews.length;
     }
 
     function updateClock() {
         const now = new Date();
-        document.getElementById('clock').innerText = now.toLocaleString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit', weekday:'short', hour:'2-digit', minute:'2-digit', hour12:true });
+        const str = now.toLocaleString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit', weekday:'short', hour:'2-digit', minute:'2-digit', hour12:true });
+        document.getElementById('clock').innerText = str;
     }
 
-    // 초기화 및 실행
+    // 초기 실행
     updateClock();
     setInterval(updateClock, 1000);
-    fetchNews();
+    
+    // 뉴스 초기화 및 1분 순환
+    rotateNews(); 
+    fetchNews().then(() => {
+        if(allNews.length > 1) rotateNews(); // 뉴스 로드되면 바로 교체
+    });
+    
     fetchWeather();
-    setInterval(rotateNews, 60000); // 1분마다 교체
-    setInterval(fetchNews, 1800000); // 30분마다 데이터 갱신
+    
+    setInterval(rotateNews, 60000); // 1분마다 뉴스 교체
+    setInterval(fetchNews, 600000); // 10분마다 새 뉴스 가져오기
+    setInterval(fetchWeather, 3600000); // 1시간마다 날씨 업데이트
 </script>
 </body>
 </html>
