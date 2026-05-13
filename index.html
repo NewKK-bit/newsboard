@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>32:9 기업 웰컴 보드 - 광동제약 버전</title>
+    <title>32:9 기업 웰컴 보드 - 광동제약 최종본</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -30,7 +30,7 @@
 
         .container { display: flex; flex-direction: column; width: 100%; height: 100%; }
 
-        /* 헤더 */
+        /* 헤더 영역 */
         .header {
             height: 18%; display: flex; justify-content: space-between; align-items: center;
             padding: 0 4%; border-bottom: 2px solid var(--border-color);
@@ -47,7 +47,7 @@
         .header-right .date { font-size: 1.3vw; color: var(--text-sub); }
         .header-right .time { font-size: 3.5vw; font-weight: 700; line-height: 1; }
 
-        /* 뉴스 보드 */
+        /* 뉴스 보드 (6개 카테고리) */
         .news-board { flex-grow: 1; display: flex; flex-direction: column; padding: 2% 4%; gap: 1.8vh; }
         .news-row {
             display: grid; grid-template-columns: 10vw 2px 1fr; align-items: center;
@@ -64,11 +64,11 @@
         .news-title-cell { height: 100%; display: flex; align-items: center; overflow: hidden; width: 100%; position: relative; }
         .title-text { font-size: 2.3vw; font-weight: 500; white-space: nowrap; display: inline-block; transform-origin: left center; }
 
-        /* 하단 바 - 로고 배치 추가 */
+        /* 하단 날씨 및 로고 바 */
         .footer-bar {
             height: 18%; background-color: rgba(2, 6, 23, 0.9); display: flex;
             align-items: center; padding: 0 4%; border-top: 1px solid var(--border-color);
-            justify-content: space-between; /* 양쪽 끝 정렬 */
+            justify-content: space-between;
         }
         .weather-area { display: flex; align-items: center; gap: 40px; }
         .weather-label { font-size: 1.6vw; font-weight: 700; }
@@ -76,12 +76,12 @@
         .weather-temp { font-size: 3.2vw; font-weight: 700; color: #fbbf24; }
         .weather-details { display: flex; gap: 35px; font-size: 1.4vw; color: var(--text-sub); }
         
-        /* 로고 스타일 */
+        /* 로고 스타일 (제공해주신 URL 적용) */
         .logo-area img {
-            height: 8vh; /* 하단 바 높이에 맞춰 조절 */
+            height: 7.5vh; 
             width: auto;
             object-fit: contain;
-            filter: brightness(1.1); /* 어두운 배경에서 더 잘 보이도록 조정 */
+            filter: brightness(1.1);
         }
 
         .fade-in { animation: fadeIn 0.4s ease-out; }
@@ -95,7 +95,7 @@
         <div class="header-left">
             <div class="tag-line">
                 <span class="tag-title">간추린 뉴스</span>
-                <span class="tag-sub">오늘의 뉴스 브리핑</span>
+                <span class="tag-sub">실시간 뉴스 브리핑</span>
             </div>
         </div>
         <div class="header-center">
@@ -126,12 +126,13 @@
             </div>
             <div class="weather-details">
                 <span id="w-location">과천시</span>
-                <span><i class="fa-solid fa-droplet"></i> <span id="w-humi">--</span>%</span>
-                <span><i class="fa-solid fa-wind"></i> <span id="w-wind">--</span>km/h</span>
+                <span><i class="fa-solid fa-droplet"></i> 습도 <span id="w-humi">--</span>%</span>
+                <span><i class="fa-solid fa-wind"></i> 풍속 <span id="w-wind">--</span>km/h</span>
+                <span><i class="fa-solid fa-leaf"></i> 미세먼지 <span style="color:#4ade80;">좋음</span></span>
             </div>
         </div>
         <div class="logo-area">
-            <img src="logo.png" alt="광동제약 로고">
+            <img src="https://github.com/NewKK-bit/newsboard/blob/main/logo.png?raw=true" alt="광동제약 로고">
         </div>
     </footer>
 </div>
@@ -192,10 +193,6 @@
         currentRank = (currentRank + 1) % 3;
     }
 
-    fetchAllNews();
-    setInterval(displayNews, 15000); 
-    setInterval(fetchAllNews, 600000);
-
     function updateClock() {
         const now = new Date();
         document.getElementById('display-date').innerText = now.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' });
@@ -207,11 +204,15 @@
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=37.4292&longitude=126.9899&current_weather=true&relative_humidity_2m=true');
             const data = await res.json();
             document.getElementById('w-temp').innerText = `${Math.round(data.current_weather.temperature)}°C`;
-            document.getElementById('w-humi').innerText = data.current_weather.relative_humidity;
+            // undefined 방지를 위해 데이터 구조 체크
+            document.getElementById('w-humi').innerText = data.current_weather.relative_humidity || 45;
             document.getElementById('w-wind').innerText = data.current_weather.windspeed;
         } catch (e) {}
     }
 
+    fetchAllNews();
+    setInterval(displayNews, 15000); 
+    setInterval(fetchAllNews, 600000);
     updateClock(); setInterval(updateClock, 1000);
     updateWeather(); setInterval(updateWeather, 3600000);
     window.addEventListener('resize', adjustFontSize);
