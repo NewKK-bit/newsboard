@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>32:9 기업 웰컴 보드 - 뉴스 & 날씨</title>
+    <title>32:9 기업 웰컴 보드 - 뉴스 & 과천 날씨</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -30,7 +30,7 @@
 
         .container { display: flex; flex-direction: column; width: 100%; height: 100%; }
 
-        /* 헤더 설정 */
+        /* 헤더 영역 */
         .header {
             height: 18%; display: flex; justify-content: space-between; align-items: center;
             padding: 0 4%; border-bottom: 2px solid var(--border-color);
@@ -47,24 +47,30 @@
         .header-right .date { font-size: 1.3vw; color: var(--text-sub); }
         .header-right .time { font-size: 3.5vw; font-weight: 700; line-height: 1; }
 
-        /* 뉴스 보드 세로 나열 */
+        /* 뉴스 보드 */
         .news-board { flex-grow: 1; display: flex; flex-direction: column; padding: 1.5% 4%; gap: 1.2vh; }
         .news-row {
-            display: grid; grid-template-columns: 8vw 2px 1fr 10vw; align-items: center;
+            display: grid; 
+            grid-template-columns: 10vw 2px 1fr; 
+            align-items: center;
             background-color: var(--bg-panel); border-radius: 4px; height: 16%;
-            border: 1px solid var(--border-color); padding: 0 20px;
+            border: 1px solid var(--border-color); padding: 0 30px;
         }
-        .cat-box { font-size: 1.5vw; font-weight: 700; text-align: center; }
-        .divider { background-color: var(--border-color); height: 50%; width: 2px; margin: 0 20px; }
+        
+        .cat-box { font-size: 1.8vw; font-weight: 800; text-align: center; letter-spacing: 1px; }
+        .divider { background-color: var(--border-color); height: 50%; width: 2px; margin: 0 30px; }
 
-        .cat-pol { color: #60a5fa; }
-        .cat-eco { color: #34d399; }
-        .cat-soc { color: #fbbf24; }
-        .cat-int { color: #a78bfa; }
+        .cat-pol { color: #60a5fa; } 
+        .cat-eco { color: #34d399; } 
+        .cat-cul { color: #f472b6; } 
+        .cat-int { color: #a78bfa; } 
         .cat-sci { color: #22d3ee; }
 
-        .news-title-cell { font-size: 2.2vw; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 20px; }
-        .news-time-cell { font-size: 1.4vw; color: var(--text-sub); text-align: right; }
+        .news-title-cell { 
+            font-size: 2.3vw; font-weight: 500; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+            padding-right: 20px; 
+        }
 
         /* 하단 날씨 바 */
         .footer-bar {
@@ -96,7 +102,7 @@
         </div>
         <div class="header-center">
             <h1>WELCOME</h1>
-            <p>우리 회사를 방문해 주셔서 감사합니다</p>
+            <p>광동제약을 방문해 주셔서 감사합니다</p>
         </div>
         <div class="header-right">
             <div id="display-date" class="date">----.--.-- (-)</div>
@@ -107,23 +113,23 @@
     <main class="news-board">
         <div class="news-row" id="row-politics">
             <div class="cat-box cat-pol">정치</div><div class="divider"></div>
-            <div class="news-title-cell title">뉴스 연결 중...</div><div class="news-time-cell time">--:--</div>
+            <div class="news-title-cell title">뉴스 연결 중...</div>
         </div>
         <div class="news-row" id="row-economy">
             <div class="cat-box cat-eco">경제</div><div class="divider"></div>
-            <div class="news-title-cell title">뉴스 연결 중...</div><div class="news-time-cell time">--:--</div>
+            <div class="news-title-cell title">뉴스 연결 중...</div>
         </div>
-        <div class="news-row" id="row-society">
-            <div class="cat-box cat-soc">사회</div><div class="divider"></div>
-            <div class="news-title-cell title">뉴스 연결 중...</div><div class="news-time-cell time">--:--</div>
+        <div class="news-row" id="row-culture">
+            <div class="cat-box cat-cul">문화</div><div class="divider"></div>
+            <div class="news-title-cell title">뉴스 연결 중...</div>
         </div>
         <div class="news-row" id="row-international">
             <div class="cat-box cat-int">국제</div><div class="divider"></div>
-            <div class="news-title-cell title">뉴스 연결 중...</div><div class="news-time-cell time">--:--</div>
+            <div class="news-title-cell title">뉴스 연결 중...</div>
         </div>
         <div class="news-row" id="row-science">
             <div class="cat-box cat-sci">IT/과학</div><div class="divider"></div>
-            <div class="news-title-cell title">뉴스 연결 중...</div><div class="news-time-cell time">--:--</div>
+            <div class="news-title-cell title">뉴스 연결 중...</div>
         </div>
     </main>
 
@@ -131,70 +137,49 @@
         <div class="weather-label">오늘의 날씨</div>
         <div class="weather-main"><i id="w-icon" class="fa-solid fa-sun"></i><div id="w-temp" class="weather-temp">--°C</div></div>
         <div class="weather-details">
-            <span id="w-location">서울특별시</span>
+            <span id="w-location">과천시</span>
             <span><i class="fa-solid fa-droplet"></i> 습도 <span id="w-humi">--</span>%</span>
-            <span><i class="fa-solid fa-wind"></i> 풍속 <span id="w-wind">--</span>m/s</span>
+            <span><i class="fa-solid fa-wind"></i> 풍속 <span id="w-wind">--</span>km/h</span>
             <span><i class="fa-solid fa-leaf"></i> 미세먼지 <span id="w-dust" class="dust-good">좋음 (12)</span></span>
         </div>
     </footer>
 </div>
 
 <script>
-    // 사회 섹션 로딩 문제를 위해 주소 형식을 조금 더 안정적인 것으로 보강했습니다.
     const feeds = {
         politics: "https://news.google.com/rss/headlines/section/topic/POLITICS?hl=ko&gl=KR&ceid=KR:ko",
         economy: "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=ko&gl=KR&ceid=KR:ko",
-        society: "https://news.google.com/rss/headlines/section/topic/SOCIETY?hl=ko&gl=KR&ceid=KR:ko", // 사회 섹션
+        culture: "https://news.google.com/rss/headlines/section/topic/ENTERTAINMENT?hl=ko&gl=KR&ceid=KR:ko",
         international: "https://news.google.com/rss/headlines/section/topic/WORLD?hl=ko&gl=KR&ceid=KR:ko",
         science: "https://news.google.com/rss/headlines/section/topic/SCITECH?hl=ko&gl=KR&ceid=KR:ko"
     };
 
     const rowMapping = { 
-        politics: "row-politics", 
-        economy: "row-economy", 
-        society: "row-society", 
-        international: "row-international", 
-        science: "row-science" 
+        politics: "row-politics", economy: "row-economy", culture: "row-culture", 
+        international: "row-international", science: "row-science" 
     };
 
     async function fetchNews() {
         const proxy = "https://api.rss2json.com/v1/api.json?rss_url=";
-        
-        // 모든 섹션을 병렬로 가져와 속도를 높입니다.
         const requests = Object.entries(feeds).map(async ([key, url]) => {
             try {
-                // 캐시 방지를 위해 랜덤 파라미터를 추가합니다.
                 const response = await fetch(proxy + encodeURIComponent(url) + "&t=" + Date.now());
                 const data = await response.json();
-                
                 if (data.status === 'ok' && data.items && data.items.length > 0) {
                     const latest = data.items[0];
                     const row = document.getElementById(rowMapping[key]);
                     const titleEl = row.querySelector('.title');
-                    
-                    // 제목 가공 (언론사 제거)
                     titleEl.innerText = latest.title.split(' - ')[0];
-                    
-                    // 시간 표시
-                    const date = new Date(latest.pubDate);
-                    row.querySelector('.time').innerText = 
-                        date.getHours().toString().padStart(2, '0') + ':' + 
-                        date.getMinutes().toString().padStart(2, '0');
-                } else {
-                    // 데이터가 없을 경우 재시도 로직을 탈 수 있게 로그를 남깁니다.
-                    console.warn(key + " 섹션 데이터 없음");
                 }
-            } catch (e) {
-                console.error(key + " 섹션 로드 실패", e);
-            }
+            } catch (e) { console.error(key + " 로드 실패", e); }
         });
-
         await Promise.all(requests);
     }
 
     async function updateWeather() {
         try {
-            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current_weather=true&relative_humidity_2m=true');
+            // 과천시 좌표 적용: latitude=37.4292, longitude=126.9899
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=37.4292&longitude=126.9899&current_weather=true&relative_humidity_2m=true');
             const data = await res.json();
             const curr = data.current_weather;
             
@@ -219,15 +204,9 @@
             now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
     }
 
-    // 초기 실행 및 주기적 업데이트
-    updateClock(); 
-    setInterval(updateClock, 1000);
-    
-    fetchNews(); 
-    setInterval(fetchNews, 600000); // 10분마다 뉴스 갱신
-    
-    updateWeather(); 
-    setInterval(updateWeather, 3600000); // 1시간마다 날씨 갱신
+    updateClock(); setInterval(updateClock, 1000);
+    fetchNews(); setInterval(fetchNews, 600000);
+    updateWeather(); setInterval(updateWeather, 3600000);
 </script>
 </body>
 </html>
