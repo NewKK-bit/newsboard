@@ -10,12 +10,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
-            /* 광동제약 브랜드 컬러 반영 */
-            --kd-orange: #FD4F00;   /* 메인 오렌지 */
+            --kd-orange: #FD4F00;
             --kd-dark: #1a1a1a;
-            --bg-main: #fcfcfc;      /* 바디 배경 */
+            --bg-main: #fcfcfc;
             --bg-panel: #ffffff;
-            --bg-footer: #f1f3f5;   /* 하단 바 배경 */
+            --bg-footer: #f1f3f5;
             --text-main: #212529;
             --border-color: #e9ecef;
         }
@@ -32,13 +31,12 @@
 
         .container { display: flex; flex-direction: column; width: 100%; height: 100%; }
 
-        /* 1. 상단 헤더: 광동 오렌지 배경 적용 */
         .header {
             height: 20%; 
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 4%; 
             background-color: var(--kd-orange);
-            color: white; /* 폰트 화이트로 고정 */
+            color: white;
             box-shadow: 0 4px 10px rgba(253, 79, 0, 0.2);
             position: relative;
             z-index: 10;
@@ -53,11 +51,9 @@
         .header-center p { font-size: 1.4vw; color: rgba(255,255,255,0.9); margin: 0; font-weight: 500; }
 
         .header-right { text-align: right; }
-        /* 날짜 크기 확대 요청 반영 */
         .header-right .date { font-size: 1.8vw; font-weight: 500; color: rgba(255,255,255,0.9); margin-bottom: 2px; }
         .header-right .time { font-size: 3.8vw; font-weight: 900; color: #ffffff; line-height: 1; }
 
-        /* 2. 뉴스 보드 영역: 화이트 테마 유지 */
         .news-board { 
             flex-grow: 1; 
             display: flex; 
@@ -81,7 +77,6 @@
         .news-title-cell { height: 100%; display: flex; align-items: center; overflow: hidden; width: 100%; position: relative; }
         .title-text { font-size: 2.3vw; font-weight: 700; color: #000; white-space: nowrap; display: inline-block; transform-origin: left center; }
 
-        /* 3. 하단 날씨 및 로고 바 */
         .footer-bar {
             height: 18%; background-color: var(--bg-footer); display: flex;
             align-items: center; padding: 0 4%; border-top: 1px solid var(--border-color);
@@ -160,7 +155,7 @@
         sports: "https://news.google.com/rss/headlines/section/topic/SPORTS?hl=ko&gl=KR&ceid=KR:ko",
         health: "https://news.google.com/rss/headlines/section/topic/HEALTH?hl=ko&gl=KR&ceid=KR:ko",
         international: "https://news.google.com/rss/headlines/section/topic/WORLD?hl=ko&gl=KR&ceid=KR:ko",
-        science: "https://news.google.com/rss/headlines/section/topic/SCITECH?hl=ko&gl=KR&ceid=KR:ko"
+        science: "https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?hl=ko&gl=KR&ceid=KR:ko"
     };
 
     let newsData = { politics: [], economy: [], sports: [], health: [], international: [], science: [] };
